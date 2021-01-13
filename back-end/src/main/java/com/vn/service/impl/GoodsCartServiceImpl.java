@@ -1,0 +1,41 @@
+package com.vn.service.impl;
+
+import com.vn.model.GoodsCart;
+import com.vn.repository.GoodsCartRepository;
+import com.vn.service.GoodsCartService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class GoodsCartServiceImpl implements GoodsCartService {
+    @Autowired
+    GoodsCartRepository goodsCartRepository;
+
+    @Override
+    public void save(GoodsCart goodsCart) {
+        goodsCartRepository.save(goodsCart);
+    }
+
+    @Override
+    public List<GoodsCart> getAll() {
+        return goodsCartRepository.findAll();
+    }
+
+    @Override
+    public GoodsCart findByGoodsCart(Long id) {
+        return goodsCartRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public GoodsCart findByIdGoods(Long id) {
+        return goodsCartRepository.findByIdGoods(id);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        goodsCartRepository.deleteById(id);
+    }
+
+}
