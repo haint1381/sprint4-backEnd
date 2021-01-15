@@ -6,5 +6,7 @@ import java.util.List;
 
 public interface GoodsService {
     List<Goods> findAllGoods();
+    Goods findById(Long id);
+    void save(Goods goods);
     List<Goods> findAllByCategory_IdCategory(Long id);
 }

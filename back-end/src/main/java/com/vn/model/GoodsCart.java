@@ -17,11 +17,42 @@ public class GoodsCart {
     private String saleOff;
     private String priceForSaleOff;
     private String image;
+    private Boolean status;
+    private String quantity;
 
     @ManyToOne
     @JoinColumn(name = "idCart")
     @JsonIgnoreProperties("goodsCartCollection")
     private Cart cart;
+
+    @ManyToOne
+    @JoinColumn(name = "idBill")
+    @JsonIgnoreProperties("goodsCartCollection")
+    private Bill bill;
+
+    public Bill getBill() {
+        return bill;
+    }
+
+    public void setBill(Bill bill) {
+        this.bill = bill;
+    }
+
+    public String getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(String quantity) {
+        this.quantity = quantity;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
 
     public String getGoodsName() {
         return goodsName;

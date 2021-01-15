@@ -18,22 +18,10 @@ public class Goods {
     private String priceForSaleOff;
     private String image;
 
-
-
     @ManyToOne
     @JoinColumn(name = "idCategory")
     @JsonIgnoreProperties("goodsCollection")
     private Category category;
-
-    @ManyToOne
-    @JoinColumn(name = "idBillGoods")
-    @JsonIgnoreProperties("goodsCollection")
-    private BillGoods billGoods;
-
-    @ManyToOne
-    @JoinColumn(name = "idCart")
-    @JsonIgnoreProperties("goodsCollection")
-    private Cart cart;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("cart")
@@ -119,19 +107,6 @@ public class Goods {
         this.category = category;
     }
 
-    public BillGoods getBillGoods() {
-        return billGoods;
-    }
 
-    public void setBillGoods(BillGoods billGoods) {
-        this.billGoods = billGoods;
-    }
 
-    public Cart getCart() {
-        return cart;
-    }
-
-    public void setCart(Cart cart) {
-        this.cart = cart;
-    }
 }

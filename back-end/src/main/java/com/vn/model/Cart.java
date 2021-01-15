@@ -19,7 +19,15 @@ public class Cart {
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("cart")
-    private List<GoodsCart> goodsCollection;
+    private List<GoodsCart> goodsCartCollection;
+
+    public List<GoodsCart> getGoodsCartCollection() {
+        return goodsCartCollection;
+    }
+
+    public void setGoodsCartCollection(List<GoodsCart> goodsCartCollection) {
+        this.goodsCartCollection = goodsCartCollection;
+    }
 
     public Long getIdCart() {
         return idCart;
@@ -37,11 +45,5 @@ public class Cart {
         this.userCollection = userCollection;
     }
 
-    public List<GoodsCart> getGoodsCollection() {
-        return goodsCollection;
-    }
 
-    public void setGoodsCollection(List<GoodsCart> goodsCollection) {
-        this.goodsCollection = goodsCollection;
-    }
 }

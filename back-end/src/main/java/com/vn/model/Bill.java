@@ -12,17 +12,23 @@ public class Bill {
     private Long idBill;
     private String createdDate;
     private Boolean billType;
-    private String quantity;
+
+    @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("bill")
+    private Collection<GoodsCart> goodsCartCollection;
 
     @ManyToOne()
     @JoinColumn(name = "idUser")
     @JsonIgnoreProperties("billCollection")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "idBillGoods")
-    @JsonIgnoreProperties("billCollection")
-    private BillGoods billGoods;
+    public Collection<GoodsCart> getGoodsCartCollection() {
+        return goodsCartCollection;
+    }
+
+    public void setGoodsCartCollection(Collection<GoodsCart> goodsCartCollection) {
+        this.goodsCartCollection = goodsCartCollection;
+    }
 
     public Long getIdBill() {
         return idBill;
@@ -48,27 +54,11 @@ public class Bill {
         this.billType = billType;
     }
 
-    public String getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(String quantity) {
-        this.quantity = quantity;
-    }
-
     public User getUser() {
         return user;
     }
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public BillGoods getBillGoods() {
-        return billGoods;
-    }
-
-    public void setBillGoods(BillGoods billGoods) {
-        this.billGoods = billGoods;
     }
 }

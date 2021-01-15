@@ -29,13 +29,23 @@ public class GoodsCartServiceImpl implements GoodsCartService {
     }
 
     @Override
-    public GoodsCart findByIdGoods(Long id) {
+    public GoodsCart findByIdGoodsStatus(Long id) {
         return goodsCartRepository.findByIdGoods(id);
     }
 
     @Override
     public void deleteById(Long id) {
         goodsCartRepository.deleteById(id);
+    }
+
+    @Override
+    public List<GoodsCart> findGoodsCartByCart_IdCartAndStatusTrue(Long id) {
+        return goodsCartRepository.findGoodsCartByCart_IdCartAndStatusTrue(id);
+    }
+
+    @Override
+    public List<GoodsCart> findAllByStatusTrue(Boolean value) {
+        return goodsCartRepository.findAllByStatusTrue(value);
     }
 
 }

@@ -19,6 +19,16 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
+    public Goods findById(Long id) {
+        return goodsRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public void save(Goods goods) {
+        goodsRepository.save(goods);
+    }
+
+    @Override
     public List<Goods> findAllByCategory_IdCategory(Long id) {
         return goodsRepository.findAllByCategory_IdCategory(id);
     }

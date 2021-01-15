@@ -11,11 +11,13 @@ public class GoodsCartDTO {
     private String priceForSaleOff;
     private String image;
     private Long cart;
+    private Boolean status;
+    private String totalQuantity;
 
     public GoodsCartDTO() {
     }
 
-    public GoodsCartDTO(Long idGoodsCart, Long idGoods, String quantityCart, String goodsName, String price, String tradeMark, String saleOff, String priceForSaleOff, String image, Long cart) {
+    public GoodsCartDTO(Long idGoodsCart, Long idGoods, String quantityCart, String goodsName, String price, String tradeMark, String saleOff, String priceForSaleOff, String image, Long cart, Boolean status, String totalQuantity ) {
         this.idGoodsCart = idGoodsCart;
         this.idGoods = idGoods;
         this.quantityCart = quantityCart;
@@ -26,6 +28,24 @@ public class GoodsCartDTO {
         this.priceForSaleOff = priceForSaleOff;
         this.image = image;
         this.cart = cart;
+        this.status = status;
+        this.totalQuantity = totalQuantity;
+    }
+
+    public String getTotalQuantity() {
+        return totalQuantity;
+    }
+
+    public void setTotalQuantity(String totalQuantity) {
+        this.totalQuantity = totalQuantity;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 
     public Long getIdGoodsCart() {
