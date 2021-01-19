@@ -1,177 +1,90 @@
 package com.vn.controllers;
 
-
 import com.vn.dto.GoodsCartDTO;
+import com.vn.dto.UserAnonymous;
 import com.vn.model.*;
 import com.vn.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Controller
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/cart")
-public class CartControler {
+@RequestMapping("/session")
+public class SessionController {
+    @Autowired
+    GoodsCartService goodsCartService;
+
     @Autowired
     CartService cartService;
 
     @Autowired
     UserService userService;
+
     @Autowired
     BillService billService;
+
     @Autowired
     GoodsService goodsService;
 
     @Autowired
-    GoodsCartService goodsCartService;
-    @Autowired
     private JavaMailSender emailSender;
 
-    @GetMapping("/getAll")
-    public ResponseEntity<List<GoodsCartDTO>> getAllGoodsCart(@RequestParam("username") String username) {
-        User user = userService.findByUsername(username);
-        List<GoodsCartDTO> goodsCartDTOList = new ArrayList<>();
-        if (user == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public static Map<Long, GoodsCartDTO> cartItems = new HashMap<>();
+    @GetMapping
+    public ResponseEntity<List<GoodsCartDTO>> getCartPage(HttpSession session){
+        List<GoodsCartDTO> list = new ArrayList<>();
+        for (Long key: cartItems.keySet()){
+            list.add(cartItems.get(key));
         }
-        Cart cart = user.getCart();
-        List<GoodsCart> goodsCartList = cart.getGoodsCartCollection();
-        if (goodsCartList.isEmpty()) {
+        if(list.isEmpty()){
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        for (GoodsCart goodsCart : goodsCartList) {
-            if (goodsCart.getStatus().equals(true)) {
-                goodsCartDTOList.add(new GoodsCartDTO(
-                        goodsCart.getIdGoodsCart(),
-                        goodsCart.getIdGoods(),
-                        goodsCart.getQuantityCart(),
-                        goodsCart.getGoodsName(),
-                        goodsCart.getPrice(),
-                        goodsCart.getTradeMark(),
-                        goodsCart.getSaleOff(),
-                        goodsCart.getPriceForSaleOff(),
-                        goodsCart.getImage(),
-                        goodsCart.getCart().getIdCart(),
-                        goodsCart.getStatus(),
-                        goodsCart.getQuantity()
-                ));
-            }
-
-        }
-        return new ResponseEntity<>(goodsCartDTOList, HttpStatus.OK);
-    }
-
-    @GetMapping("/findByIdGoods/{idGoods}")
-    public ResponseEntity<GoodsCartDTO> findByGoodsCart(@PathVariable("idGoods") Long idGoods) {
-        GoodsCart goodsCart = goodsCartService.findByIdGoodsStatus(idGoods);
-        if (goodsCart == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        GoodsCartDTO goodsCartDTO = new GoodsCartDTO(
-                goodsCart.getIdGoodsCart(),
-                goodsCart.getIdGoods(),
-                goodsCart.getQuantityCart(),
-                goodsCart.getGoodsName(),
-                goodsCart.getPrice(),
-                goodsCart.getTradeMark(),
-                goodsCart.getSaleOff(),
-                goodsCart.getPriceForSaleOff(),
-                goodsCart.getImage(),
-                goodsCart.getCart().getIdCart(),
-                goodsCart.getStatus(),
-                goodsCart.getQuantity()
-        );
-        return new ResponseEntity<>(goodsCartDTO, HttpStatus.OK);
+        return new ResponseEntity<>(list,HttpStatus.OK);
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Void> addGoodsCart(@RequestBody GoodsCartDTO goodsCartDTO) {
-        if (cartService.finById(goodsCartDTO.getCart()) == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<Void> addCart(@RequestBody GoodsCartDTO goodsCartDTO) {
+        if (goodsCartDTO != null) {
+            if (cartItems.containsKey(goodsCartDTO.getIdGoods())) {
+                GoodsCartDTO item = cartItems.get(goodsCartDTO.getIdGoods());
+                item.setQuantityCart(goodsCartDTO.getQuantityCart());
+                cartItems.put(goodsCartDTO.getIdGoods(), item);
+            } else {
+                cartItems.put(goodsCartDTO.getIdGoods(), goodsCartDTO);
+            }
         }
-        GoodsCart goodsCart = new GoodsCart();
-        goodsCart.setIdGoods(goodsCartDTO.getIdGoods());
-        goodsCart.setQuantityCart(goodsCartDTO.getQuantityCart());
-        goodsCart.setGoodsName(goodsCartDTO.getGoodsName());
-        goodsCart.setPrice(goodsCartDTO.getPrice());
-        goodsCart.setTradeMark(goodsCartDTO.getTradeMark());
-        goodsCart.setPriceForSaleOff(goodsCartDTO.getPriceForSaleOff());
-        goodsCart.setSaleOff(goodsCartDTO.getSaleOff());
-        goodsCart.setImage(goodsCartDTO.getImage());
-        goodsCart.setCart(cartService.finById(goodsCartDTO.getCart()));
-        goodsCart.setStatus(true);
-        goodsCart.setQuantity(goodsCartDTO.getTotalQuantity());
-        goodsCartService.save(goodsCart);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/find-by-cart")
-    public ResponseEntity<Long> findByCart(@RequestParam("username") String username) {
-        User user = userService.findByUsername(username);
-        if (user == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        Cart cart = user.getCart();
-        return new ResponseEntity<>(cart.getIdCart(), HttpStatus.OK);
-    }
-
-    @PutMapping("/update-goods-cart")
-    public ResponseEntity<Void> updateGoodsCart(@RequestParam("idGoodsCart") String idGoodsCart, @RequestBody GoodsCartDTO goodsCartDTO) {
-        GoodsCart goodsCart1 = goodsCartService.findByGoodsCart(Long.parseLong(idGoodsCart));
-        if (goodsCart1 == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            goodsCart1.setIdGoods(goodsCartDTO.getIdGoods());
-            goodsCart1.setQuantityCart(goodsCartDTO.getQuantityCart());
-            goodsCart1.setGoodsName(goodsCartDTO.getGoodsName());
-            goodsCart1.setPrice(goodsCartDTO.getPrice());
-            goodsCart1.setTradeMark(goodsCartDTO.getTradeMark());
-            goodsCart1.setSaleOff(goodsCartDTO.getSaleOff());
-            goodsCart1.setPriceForSaleOff(goodsCartDTO.getPriceForSaleOff());
-            goodsCart1.setImage(goodsCartDTO.getImage());
-            goodsCart1.setCart(cartService.finById(goodsCartDTO.getCart()));
-            goodsCartService.save(goodsCart1);
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-    }
-
-    @DeleteMapping("deleteAll")
-    public ResponseEntity<Boolean> resetCart(@RequestParam("idGoodsCart") String idGoodsCart) {
-
-        GoodsCart goodsCart = goodsCartService.findByGoodsCart(Long.parseLong(idGoodsCart));
-        if (goodsCart == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        goodsCartService.deleteById(Long.parseLong(idGoodsCart));
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @GetMapping("/pay-money")
-    public ResponseEntity<Boolean> payMoney(@RequestParam("username") String username) {
+    @PostMapping("/pay-money")
+    public ResponseEntity<Boolean> payMoney(@RequestBody UserAnonymous userAnonymous) {
         boolean check = false;
-        User user = userService.findByUsername(username);
-        if (user == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        Cart cart = user.getCart();
+        User user = new User();
+        user.setFullName(userAnonymous.getFullName());
+        user.setAddress(userAnonymous.getAddress());
+        user.setEmail(userAnonymous.getEmail());
+        user.setPhoneNumber(userAnonymous.getPhoneNumber());
+        userService.save(user);
         Goods goods = null;
-        List<GoodsCart> goodsCartList = goodsCartService.findGoodsCartByCart_IdCartAndStatusTrue(cart.getIdCart());
-        List<GoodsCart> goodsCartList1 = new ArrayList<>();
+        List<GoodsCartDTO> goodsCartList = new ArrayList<>();
+        for (Long key: cartItems.keySet()){
+            goodsCartList.add(cartItems.get(key));
+        }
+
+        List<GoodsCartDTO> goodsCartList1 = new ArrayList<>();
         Bill bill = new Bill();
         Date date1 = new Date();
         SimpleDateFormat formatter1 = new SimpleDateFormat("dd-MM-yyyy");
@@ -179,19 +92,14 @@ public class CartControler {
         bill.setBillType(true);
         bill.setUser(user);
         bill.setStatus(false);
-        bill.setGoodsCartCollection(goodsCartList1);
         billService.save(bill);
-        for (GoodsCart goodsCart : goodsCartList) {
+        for (GoodsCartDTO goodsCart : goodsCartList) {
             check = false;
             goods = goodsService.findById(goodsCart.getIdGoods());
             if (Integer.parseInt(goods.getQuantity()) >= Integer.parseInt(goodsCart.getQuantityCart())) {
                 check = true;
                 goodsCartList1.add(goodsCart);
                 goods.setQuantity(String.valueOf(Integer.parseInt(goods.getQuantity()) - Integer.parseInt(goodsCart.getQuantityCart())));
-                goodsCart.setQuantity(String.valueOf(Integer.parseInt(goods.getQuantity()) - Integer.parseInt(goodsCart.getQuantityCart())));
-                goodsCart.setStatus(false);
-                goodsCart.setBill(bill);
-                goodsCartService.save(goodsCart);
                 goodsService.save(goods);
             }
         }
@@ -201,7 +109,9 @@ public class CartControler {
                 int priceSale = 0;
                 int totalMoney = 0;
                 MimeMessage message = this.emailSender.createMimeMessage();
-
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
+                helper.setTo(user.getEmail());
+                helper.setSubject("Hóa đơn thanh toán");
                 Date date = new Date();
                 SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
                 String dateNow = formatter.format(date);
@@ -213,9 +123,6 @@ public class CartControler {
 
                 System.out.println(String.format("%,.3f",(double) priceSale));
 
-                MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
-                helper.setTo(user.getEmail());
-                helper.setSubject("Hóa đơn thanh toán");
                 StringBuilder mailContent = new StringBuilder(
                         "<!DOCTYPE html>\n" +
                                 "<html lang=\"en\">\n" +
@@ -252,7 +159,7 @@ public class CartControler {
                                 "        </thead>\n" +
                                 "        <tbody>");
 
-                for (GoodsCart goodsCart : goodsCartList1) {
+                for (GoodsCartDTO goodsCart : goodsCartList1) {
                     index++;
                     priceSale = Integer.parseInt(goodsCart.getPrice())*Integer.parseInt(goodsCart.getQuantityCart())-( (Integer.parseInt(goodsCart.getPrice())*Integer.parseInt(goodsCart.getQuantityCart()) * Integer.parseInt(goodsCart.getSaleOff()))/100);
                     totalMoney += priceSale;
@@ -299,7 +206,7 @@ public class CartControler {
                         "        </tr>\n" +
                         "\n" +
                         "    </table>\n" +
-                        "    <small style=\"margin-left: 10px\"><strong>Địa chỉ giao hàng:</strong> [k58/64A] - Ông Ích Khiêm - Thanh Bình - Hải Châu - Đà Nẵng.</small>\n" +
+                        "    <small style=\"margin-left: 10px\"><strong>Địa chỉ giao hàng:</strong>"+ user.getAddress()+".</small>\n" +
                         "    <hr>\n" +
                         "    <a style=\"margin-left: 10px\" href=\"http://localhost:4200/home\">Mua hàng tại đây!</a>\n" +
                         "    <p style=\"margin-left: 10px\">Cảm ơn bạn đã mua hàng tại website chúng tôi! Chúc quý khánh vui vẻ.</p>\n" +
@@ -313,34 +220,13 @@ public class CartControler {
                 messaging.getStackTrace();
             }
         }
+        cartItems.clear();
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
-    @GetMapping("/getBillUser")
-    public ResponseEntity<List<Bill>> getBillUser(@RequestParam("username") String username) {
-        User user = userService.findByUsername(username);
-        if (user == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        List<Bill> billList = billService.findAllBillById_User(user.getIdUser());
-        if(billList.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(billList, HttpStatus.OK);
-    }
-
-
-
-    @GetMapping("/getBillDetail")
-    public ResponseEntity<List<GoodsCart>> getBillDetail(@RequestParam("idBill") String idBill) {
-        Bill bill = billService.findById(Long.parseLong(idBill));
-        if (bill == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        List<GoodsCart> goodsCartList = (List<GoodsCart>) bill.getGoodsCartCollection();
-        if(goodsCartList.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(goodsCartList, HttpStatus.OK);
+    @GetMapping("/reset-cart")
+    public ResponseEntity<Void> resetCart(){
+        cartItems.clear();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

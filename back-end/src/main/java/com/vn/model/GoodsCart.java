@@ -1,5 +1,6 @@
 package com.vn.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
@@ -20,11 +21,13 @@ public class GoodsCart {
     private Boolean status;
     private String quantity;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "idCart")
     @JsonIgnoreProperties("goodsCartCollection")
     private Cart cart;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "idBill")
     @JsonIgnoreProperties("goodsCartCollection")

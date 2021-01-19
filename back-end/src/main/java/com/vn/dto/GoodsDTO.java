@@ -1,15 +1,7 @@
-package com.vn.model;
+package com.vn.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.persistence.*;
-import java.util.Collection;
-
-@Entity
-public class Goods {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class GoodsDTO {
     private Long idGoods;
     private String goodsName;
     private String price;
@@ -18,25 +10,22 @@ public class Goods {
     private String saleOff;
     private String priceForSaleOff;
     private String image;
+    private String category;
     private String favourite;
     private String description;
 
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "idCategory")
-    @JsonIgnoreProperties("goodsCollection")
-    private Category category;
-
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("cart")
-    private Collection<GoodsCart> goodsCartCollection;
-
-    public Collection<GoodsCart> getGoodsCartCollection() {
-        return goodsCartCollection;
-    }
-
-    public void setGoodsCartCollection(Collection<GoodsCart> goodsCartCollection) {
-        this.goodsCartCollection = goodsCartCollection;
+    public GoodsDTO(Long idGoods, String goodsName, String price, String quantity, String tradeMark, String saleOff, String priceForSaleOff, String image, String category, String favourite, String description) {
+        this.idGoods = idGoods;
+        this.goodsName = goodsName;
+        this.price = price;
+        this.quantity = quantity;
+        this.tradeMark = tradeMark;
+        this.saleOff = saleOff;
+        this.priceForSaleOff = priceForSaleOff;
+        this.image = image;
+        this.category = category;
+        this.favourite = favourite;
+        this.description = description;
     }
 
     public String getFavourite() {
@@ -53,14 +42,6 @@ public class Goods {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public Long getIdGoods() {
@@ -119,14 +100,19 @@ public class Goods {
         this.priceForSaleOff = priceForSaleOff;
     }
 
-    public Category getCategory() {
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(Category category) {
+    public void setCategory(String category) {
         this.category = category;
     }
-
-
-
 }

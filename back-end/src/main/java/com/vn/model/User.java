@@ -1,11 +1,13 @@
 package com.vn.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.util.Collection;
 
 @Entity
+@Table(name = "account")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +21,7 @@ public class User {
     private String image;
     private Boolean status;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "idRole")
     @JsonIgnoreProperties("userCollection")
@@ -28,6 +31,7 @@ public class User {
     @JsonIgnoreProperties("user")
     private Collection<Bill> billCollection;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "idCart")
     @JsonIgnoreProperties("userCollection")

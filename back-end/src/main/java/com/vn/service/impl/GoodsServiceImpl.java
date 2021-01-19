@@ -24,6 +24,11 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
+    public void deleteById(Long id) {
+        goodsRepository.deleteById(id);
+    }
+
+    @Override
     public void save(Goods goods) {
         goodsRepository.save(goods);
     }
@@ -31,5 +36,10 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     public List<Goods> findAllByCategory_IdCategory(Long id) {
         return goodsRepository.findAllByCategory_IdCategory(id);
+    }
+
+    @Override
+    public List<Goods> findAllByGoodsNameContaining(String name) {
+        return goodsRepository.findAllByGoodsNameContaining(name);
     }
 }

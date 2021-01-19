@@ -1,5 +1,6 @@
 package com.vn.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
@@ -12,15 +13,25 @@ public class Bill {
     private Long idBill;
     private String createdDate;
     private Boolean billType;
+    private Boolean status;
 
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("bill")
     private Collection<GoodsCart> goodsCartCollection;
 
+    @JsonIgnore
     @ManyToOne()
     @JoinColumn(name = "idUser")
     @JsonIgnoreProperties("billCollection")
     private User user;
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
 
     public Collection<GoodsCart> getGoodsCartCollection() {
         return goodsCartCollection;
